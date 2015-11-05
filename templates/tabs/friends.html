@@ -1,0 +1,35 @@
+<ion-header-bar class="bar-positive">
+<h1 class="title" style="cursor:pointer" >
+    <a href="#/class/" style="text-decoration:none">
+        <i class="icon ion-chevron-left" style="font-size:20px;margin-right:10px"></i>
+    </a>
+    好友
+</h1>
+</ion-header-bar>
+
+<style>
+    .item-avatar .item-content{
+        min-height:56px;
+    }
+</style>
+
+<ion-content>
+    <!--ion-list>
+    <ion-item ng-repeat="contact in contacts" 
+    class="item item-avatar" 
+    style="padding:17px;padding-left:72px;min-height:0px"
+    href="#/chat/{{}}"
+    >
+            <img ng-src="img/tatanic.jpg" style="width:30px;height:30px"/>
+            {{contact.displayName}}
+        </ion-item>
+    </ion-list-->
+    <ion-list>
+        <ion-item menu-close class="item item-avatar"  style="min-height:0px" ng-repeat="contact in contacts" 
+        href="#/chat/{{createSessionFromContact(contact)}}">
+            <img ng-src="img/tatanic.jpg" style="width:30px;height:30px"/>
+            {{contact.displayName}}
+        </ion-item>
+    </ion-list>
+
+</ion-content>

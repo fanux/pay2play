@@ -165,3 +165,65 @@ angular.module('p2p.services', [])
     }
 })
 
+.factory('Contacts',function(){
+    var contacts = [{
+        "id": "1",
+        "firstName": "方",
+        "lastName": "海涛",
+        "displayName": "方海涛",
+        "phoneNumbers": [
+            {
+                "number": "15805691422",
+                "normalizedNumber": "15805691422",
+                "type": "MOBILE"
+            }, 
+            {
+                "number": "(415) 555-3695",
+                "normalizedNumber": "(415) 555-3695",
+                "type": "OTHER"
+            }
+        ]
+    }];
+    return {
+        save:function(phoneContacts){
+            contacts = phoneContacts;
+            //alert('save contact:'+JSON.stringify(contacts));
+        },
+        get:function(){
+            return contacts;
+        }
+    }
+})
+
+.factory('Session',function(){
+    /*
+      {
+        '15805691422':{
+            'id':'15805691422',
+            'name':'方海涛',
+            'img':'',
+        },
+      }
+     * */
+    var sessions = {}
+    return {
+        get:function(sessionId){
+            console.log('get session:'+JSON.stringify(sessions[sessionId]));
+            return sessions[sessionId];
+        },
+        //创建会话，返回创建好的id
+        create:function(session){
+            if (sessions.hasOwnProperty(session.id)){
+                return sessions[session.id];
+            }
+            sessions[session.id] = {};
+            sessions[session.id].id = session.id;
+            sessions[session.id].name = session.name;
+            sessionId = session.id;
+
+            console.log('create session:',JSON.stringify(sessions[session.id]));
+
+            return sessionId;
+        }
+    }
+})

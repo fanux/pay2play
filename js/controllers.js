@@ -23,7 +23,7 @@ angular.module('p2p.controllers',[])
     };
 })
 
-.controller('RoomsCtrl',function($scope, Account, $ionicModal,  $ionicSideMenuDelegate, Room, $stateParams){
+.controller('RoomsCtrl',function($scope, Contacts, Account, $ionicModal,  $ionicSideMenuDelegate, Room, $stateParams){
     $scope.toggleClasses = function(){
         $ionicSideMenuDelegate.toggleLeft();
     };
@@ -32,13 +32,14 @@ angular.module('p2p.controllers',[])
     function onDeviceReady() {
         console.log('device ready');
         navigator.contactsPhoneNumbers.list(function(contacts){
-            $scope.contacts = contacts;
+            Contacts.save(contacts);
+            //alert(JSON.stringify(contacts));
         },function(error){
             alert('contact error:'+error);
         });
 
         window.plugins.sim.getSimInfo(function(simInfo){
-            alert('SIM info:'+JSON.stringify(simInfo));
+            //alert('SIM info:'+JSON.stringify(simInfo));
         },function(error){
             alert('contact error:'+error);
         });
@@ -146,5 +147,34 @@ angular.module('p2p.controllers',[])
         console.log(simInfo);
     }
     */
+})
+
+.controller('SessionsCtrl', function($scope, $stateParams){
+})
+
+.controller('FriendsCtrl', function($scope, Contacts, Session){
+    $scope.contacts = Contacts.get();
+
+    $scope.createSessionFromContact = function(contact){
+        var session = {
+            'id':contact.phoneNumbers[0].normalizedNumber,
+            'name':contact.displayName
+        };
+        console.log('contact session:'+JSON.stringify(session));
+
+        return Session.create(session).id;
+    };
+})
+
+.controller('SettingsCtrl', function($scope, $stateParams){
+})
+
+.controller('ChatCtrl', function($scope, $cordovaSms, $stateParams, Session){
+    $scope.session = Session.get($stateParams.sessionId);
+    $scope.message = '';
+    $scope.send = function(session, message){
+        $cordovaSms.send(session.id, message).
+            then(function(){},function(){});
+    };
 })
 
