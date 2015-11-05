@@ -1,0 +1,35 @@
+<ion-header-bar class="bar-royal">
+<button class="button button-icon" ng-click="toggleClasses()">
+    <i class="icon ion-navicon"></i>
+</button>
+<h1 class="title">{{getRoomNameById(currentRoomId)}}</h1>
+<button class="button button-icon" ng-click="newResource(currentRoomId)">
+    <i class="icon ion-android-upload"></i>
+</button>
+</ion-header-bar>
+
+<ion-content>
+<script id="add-new-resource.html" type="text/ng-template">
+    <div class="modal">
+        <ion-header-bar>
+            <h1 class="title">创建新资源</h1>
+            <button class="button button-icon" ng-click="cancelNewResource()">
+                <i class="icon ion-ios-close-empty"></i>
+            </button>
+        </ion-header-bar>
+
+        <ion-content>
+        </ion-content>
+    </div>
+</script>
+
+
+    <div class="list">
+        <a  href="#/room/{{currentRoomId}}/class/{{currentClass}}/resource/{{resource.id}}" class="item item-avatar card" ng-repeat="resource in resources" >
+            <img ng-src="{{resource.img}}"/>
+            <h2 style="margin-top:10px">《{{resource.name}}》</h2>
+            <p>{{resource.body}}</p>
+        </a>
+    </div>
+</ion-content>
+

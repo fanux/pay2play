@@ -1,0 +1,32 @@
+<style>
+    .row i{
+        font-size:25px;
+        color:green;
+    }
+    .row {
+        padding:0px;
+    }
+</style>
+<ion-nav-view name="leftTabViews"></ion-nav-view> 
+
+<ion-footer-bar >
+ <div class="row">
+    <div class="col col-33 col-offset-10">
+        <button class="button button-clear" ng-click="loginJudge()">
+            <a  menu-close href="#/mine/?userId=1" style="text-decoration:none"><i class="ion-chatboxes"></i></a>
+        </button>
+    </div>
+
+    <div class="col col-33">
+        <button  class="button button-clear" ng-click="loginJudge()">
+            <a  menu-close href="#/mine/?userId=1" style="text-decoration:none"><i class="ion-person-stalker"></i></a>
+        </button>
+    </div>
+
+    <div class="col col-33">
+        <button  class="button button-clear" ng-click="loginJudge()">
+            <a  menu-close href="#/mine/?userId=1" style="text-decoration:none"><i class="ion-ios-gear"></i></a>
+        </button>
+    </div>
+</div>
+</ion-footer-bar >

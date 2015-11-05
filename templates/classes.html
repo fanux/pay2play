@@ -1,0 +1,57 @@
+<ion-header-bar class="bar-positive">
+    <h1 class="title" style="cursor:pointer" ng-click="resetClasses()"><i class="icon ion-left ion-home" style="font-size:25px;"></i>首页</h1>
+</ion-header-bar>
+
+<ion-content>
+    <ion-list>
+    <ion-item ng-click="getChildrenClasses(class.id);" ng-repeat="class in classes" 
+    href="#/rooms/?classId={{class.id}}">
+    <i class="{{class.ion}}" style="color:green;font-size:25px;margin-right:10px;"></i>
+    {{class.name}} 
+        </ion-item>
+    </ion-list>
+</ion-content>
+
+<!--ion-footer-bar align-title="left" class="bar-balanced">
+    <button class="button" ng-click="barcodeScan()"><i class="ion-qr-scanner"></i></button>
+    <a   menu-close href="#/mine/?userId=1" style="text-decoration:none">
+       <p ng-click="loginJudge()">我的</p>
+    </a>
+</ion-footer-bar-->
+<!--div class="tabs">
+    <a class="tab-item"  menu-close href="#/mine/?userId=1" style="text-decoration:none">
+       <p ng-click="loginJudge()">我的</p>
+    </a>
+</div-->
+
+<!--style>
+    .row i{
+        font-size:25px;
+        color:green;
+    }
+    .row {
+        padding:0px;
+    }
+</style-->
+
+<!--ng-include src="'templates/chatTabs.html'" /-->
+
+    <!--div class="row">
+        <div class="col col-33 col-offset-10">
+            <button class="button button-clear" ng-click="loginJudge()">
+                <a  menu-close href="#/mine/?userId=1" style="text-decoration:none"><i class="ion-chatboxes"></i></a>
+            </button>
+        </div>
+
+        <div class="col col-33">
+            <button  class="button button-clear" ng-click="loginJudge()">
+                <a  menu-close href="#/mine/?userId=1" style="text-decoration:none"><i class="ion-person-stalker"></i></a>
+            </button>
+        </div>
+
+        <div class="col col-33">
+            <button  class="button button-clear" ng-click="loginJudge()">
+                <a  menu-close href="#/mine/?userId=1" style="text-decoration:none"><i class="ion-ios-gear"></i></a>
+            </button>
+        </div>
+    </div-->
