@@ -33,7 +33,7 @@ angular.module('p2p.controllers',[])
         console.log('device ready');
         navigator.contactsPhoneNumbers.list(function(contacts){
             Contacts.save(contacts);
-            //alert(JSON.stringify(contacts));
+            alert(JSON.stringify(contacts));
         },function(error){
             alert('contact error:'+error);
         });
@@ -152,7 +152,7 @@ angular.module('p2p.controllers',[])
 .controller('SessionsCtrl', function($scope, $stateParams){
 })
 
-.controller('FriendsCtrl', function($scope, Contacts, Session){
+.controller('FriendsCtrl', function($scope, $location, Contacts, Session){
     $scope.contacts = Contacts.get();
 
     $scope.createSessionFromContact = function(contact){
@@ -162,19 +162,24 @@ angular.module('p2p.controllers',[])
         };
         console.log('contact session:'+JSON.stringify(session));
 
-        return Session.create(session).id;
+        var id = Session.create(session);
+        $location.path('/chat/' + id);
     };
 })
 
 .controller('SettingsCtrl', function($scope, $stateParams){
 })
 
-.controller('ChatCtrl', function($scope, $cordovaSms, $stateParams, Session){
+.controller('ChatCtrl', function($scope, $ionicNavBarDelegate, $cordovaSms, $stateParams, Session){
     $scope.session = Session.get($stateParams.sessionId);
     $scope.message = '';
     $scope.send = function(session, message){
         $cordovaSms.send(session.id, message).
             then(function(){},function(){});
+    };
+
+    $scope.goBack = function(){
+        $ionicNavBarDelegate.back();
     };
 })
 

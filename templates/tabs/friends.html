@@ -26,7 +26,7 @@
     </ion-list-->
     <ion-list>
         <ion-item menu-close class="item item-avatar"  style="min-height:0px" ng-repeat="contact in contacts" 
-        href="#/chat/{{createSessionFromContact(contact)}}">
+        ng-click="createSessionFromContact(contact)">
             <img ng-src="img/tatanic.jpg" style="width:30px;height:30px"/>
             {{contact.displayName}}
         </ion-item>

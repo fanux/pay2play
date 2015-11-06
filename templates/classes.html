@@ -8,7 +8,7 @@
 <ion-content>
     <ion-list>
     <ion-item ng-click="getChildrenClasses(class.id);" ng-repeat="class in classes" 
-    href="#/rooms/?classId={{class.id}}">
+    href="#/rooms/{{class.id}}/">
     <i class="{{class.ion}}" style="color:green;font-size:25px;margin-right:10px;"></i>
     {{class.name}} 
         </ion-item>

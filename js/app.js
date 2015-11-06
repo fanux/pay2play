@@ -31,7 +31,54 @@ angular.module('p2p', ['ionic', 'p2p.controllers', 'p2p.services', 'ngCordova'])
         }
     })
     .state('index',{
-        url:'/',
+        //url:'/',
+        views:{
+            /*
+            'panelView':{
+                templateUrl:'templates/rooms.html',
+                controller:'RoomsCtrl'
+            },
+            */
+            'leftMenuView':{
+                templateUrl:'templates/chatTabs.html',
+                controller:'ClassCtrl'
+            }
+        }
+    })
+
+    .state('index.friends',{
+        //url:'friends',
+        views:{
+            'leftTabViews':{
+                templateUrl:'templates/tabs/friends.html',
+                controller:'FriendsCtrl'
+            }
+        }
+    })
+
+    .state('index.settings',{
+        //url:'settings',
+        views:{
+            'leftTabViews':{
+                templateUrl:'templates/tabs/settings.html',
+                controller:'SettingsCtrl'
+            }
+        }
+    })
+
+
+    .state('index.sessions',{
+        //url:'sessions',
+        views:{
+            'leftTabViews':{
+                templateUrl:'templates/tabs/sessions.html',
+                controller:'SessionsCtrl'
+            }
+        }
+    })
+
+    .state('rooms',{
+        url:'/rooms/:classId',
         views:{
             'panelView':{
                 templateUrl:'templates/rooms.html',
@@ -44,54 +91,12 @@ angular.module('p2p', ['ionic', 'p2p.controllers', 'p2p.services', 'ngCordova'])
         }
     })
 
-    .state('index.friends',{
-        url:'friends',
-        views:{
-            'leftTabViews':{
-                templateUrl:'templates/tabs/friends.html',
-                controller:'FriendsCtrl'
-            }
-        }
-    })
-
-
-    .state('index.settings',{
-        url:'settings',
-        views:{
-            'leftTabViews':{
-                templateUrl:'templates/tabs/settings.html',
-                controller:'SettingsCtrl'
-            }
-        }
-    })
-
-
-    .state('index.sessions',{
-        url:'sessions',
-        views:{
-            'leftTabViews':{
-                templateUrl:'templates/tabs/sessions.html',
-                controller:'SessionsCtrl'
-            }
-        }
-    })
-
-    .state('index.class', {
-        url:'class/?classId',
+    .state('rooms.class', {
+        url:'/',
         views:{
             'leftTabViews':{
                 templateUrl:'templates/classes.html',
                 controller:'ClassCtrl'
-            }
-        }
-    })
-
-    .state('rooms',{
-        url:'/rooms/?classId',
-        views:{
-            'panelView':{
-                templateUrl:'templates/rooms.html',
-                controller:'RoomsCtrl'
             }
         }
     })
@@ -140,7 +145,7 @@ angular.module('p2p', ['ionic', 'p2p.controllers', 'p2p.services', 'ngCordova'])
         }
     })
 
-    $urlRouterProvider.otherwise('/class/');
+    $urlRouterProvider.otherwise('/rooms/0/');
 })
 
 

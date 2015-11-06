@@ -44,7 +44,7 @@ angular.module('p2p.services', [])
             {'name':'自媒体', 'id':19, 'img':'img/lameleg.jpg'},
         ],
         '7':[
-            {'name':'小七带你看喜剧', 'id':20, 'img':'img/lameleg.jpg'},
+            {'name':'小七带你看喜剧', 'id':4, 'img':'img/lameleg.jpg'},
             {'name':'经典喜剧集', 'id':21, 'img':'img/lameleg.jpg'},
             {'name':'搞笑视频集', 'id':22, 'img':'img/lameleg.jpg'},
         ],
@@ -75,7 +75,7 @@ angular.module('p2p.services', [])
             }
         },
         query:function(classId){
-            if (!classId || typeof(classId) == 'undefined'){
+            if (classId == 0 || typeof(classId) == 'undefined'){
                 classId = 1;
             }
             return rooms[classId];
@@ -219,9 +219,9 @@ angular.module('p2p.services', [])
             sessions[session.id] = {};
             sessions[session.id].id = session.id;
             sessions[session.id].name = session.name;
-            sessionId = session.id;
+            var sessionId = session.id;
 
-            console.log('create session:',JSON.stringify(sessions[session.id]));
+            console.log('create session:',JSON.stringify(sessions[session.id]),sessionId);
 
             return sessionId;
         }
