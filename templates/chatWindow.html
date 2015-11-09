@@ -1,22 +1,17 @@
-<ion-header-bar class="bar-positive">
-<h1 class="title" style="cursor:pointer">
-    <a ui-sref="rooms.class" style="text-decoration:none">
-        <i class="icon ion-chevron-left" style="font-size:20px;margin-right:10px"></i>
-    </a>
-    {{session.name}}
-</h1>
-</ion-header-bar>
+<ion-view hide-back-button="false">
+    <ion-nav-title>
+        <ion-header-bar>
+        <h1 class="title">
+            {{session.name}}
+        </h1>
+        </ion-header-bar>
+    </ion-nav-title>
 
-<!--ion-nav-bar>
-    <ion-nav-back-button class="button-clear" ng-click="canGoBack && goBack()">
-    <i class="ion-arrow-left-c"></i>  返回
-    </ion-nav-back-button>
-</ion-nav-bar-->
+    <ion-content>
+    </ion-content>
 
-<ion-content>
-</ion-content>
-
-<ion-footer-bar >
-    <input type="text" ng-model="message" style="padding:5px;width:85%;border:1px solid #999;margin-right:1%"/>
-    <button class="button button-balanced" ng-click="send(session, message)" style="width:14%">发送</button>
-</ion-footer-bar >
+    <ion-footer-bar >
+        <input type="text" ng-model="message" style="padding:5px;width:85%;border:1px solid #999;margin-right:1%"/>
+        <button class="button button-balanced" ng-click="send(session, message)" style="width:14%">发送</button>
+    </ion-footer-bar >
+</ion-view>

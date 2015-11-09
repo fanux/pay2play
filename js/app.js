@@ -72,7 +72,7 @@ angular.module('p2p', ['ionic', 'p2p.controllers', 'p2p.services', 'ngCordova'])
         views:{
             'leftTabViews':{
                 templateUrl:'templates/tabs/sessions.html',
-                controller:'SessionsCtrl'
+                controller:'ChatCtrl'
             }
         }
     })
@@ -136,7 +136,7 @@ angular.module('p2p', ['ionic', 'p2p.controllers', 'p2p.services', 'ngCordova'])
     })
 
     .state('chat',{
-        url:'/chat/:sessionId',
+        url:'/chat/?type&name&id',
         views:{
             'panelView':{
                 templateUrl:'templates/chatWindow.html',

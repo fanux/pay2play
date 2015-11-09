@@ -7,21 +7,23 @@
         padding:0px;
     }
 </style>
-<ion-nav-view name="leftTabViews"></ion-nav-view> 
+<ion-view>
+    <ion-nav-view name="leftTabViews"></ion-nav-view> 
 
-<ion-footer-bar >
- <div class="row">
-    <div class="col col-33 col-offset-10">
-        <!--button class="button button-clear" ng-click="loginJudge()"-->
-        <a  ui-sref="index.sessions"><i class="ion-chatboxes"></i></a>
-    </div>
+    <ion-footer-bar >
+     <div class="row">
+        <div class="col col-33 col-offset-10">
+            <!--button class="button button-clear" ng-click="loginJudge()"-->
+            <a  ui-sref="index.sessions"><i class="ion-chatboxes"></i></a>
+        </div>
 
-    <div class="col col-33">
-        <a  ui-sref="index.friends" ><i class="ion-person-stalker"></i></a>
-    </div>
+        <div class="col col-33">
+            <a  ui-sref="index.friends" ><i class="ion-person-stalker"></i></a>
+        </div>
 
-    <div class="col col-33">
-        <a  ui-sref="index.settings" ><i class="ion-ios-gear"></i></a>
+        <div class="col col-33">
+            <a  ui-sref="index.settings" ><i class="ion-ios-gear"></i></a>
+        </div>
     </div>
-</div>
-</ion-footer-bar >
+    </ion-footer-bar >
+</ion-view>

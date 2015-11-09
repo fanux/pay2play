@@ -149,37 +149,30 @@ angular.module('p2p.controllers',[])
     */
 })
 
+/*
 .controller('SessionsCtrl', function($scope, $stateParams){
 })
-
-.controller('FriendsCtrl', function($scope, $location, Contacts, Session){
+*/
+.controller('FriendsCtrl', function($scope, Contacts){
     $scope.contacts = Contacts.get();
-
-    $scope.createSessionFromContact = function(contact){
-        var session = {
-            'id':contact.phoneNumbers[0].normalizedNumber,
-            'name':contact.displayName
-        };
-        console.log('contact session:'+JSON.stringify(session));
-
-        var id = Session.create(session);
-        $location.path('/chat/' + id);
-    };
 })
 
 .controller('SettingsCtrl', function($scope, $stateParams){
 })
 
-.controller('ChatCtrl', function($scope, $ionicNavBarDelegate, $cordovaSms, $stateParams, Session){
-    $scope.session = Session.get($stateParams.sessionId);
+.controller('ChatCtrl', function($scope, Contacts, $cordovaSms, $stateParams, Session){
+    $scope.session = {};
+
+    $scope.session.id = $stateParams.id;
+    $scope.session.name = $stateParams.name;
+    $scope.session.type = $stateParams.type;
+
+    Session.create($scope.session);
+
     $scope.message = '';
     $scope.send = function(session, message){
         $cordovaSms.send(session.id, message).
             then(function(){},function(){});
-    };
-
-    $scope.goBack = function(){
-        $ionicNavBarDelegate.back();
     };
 })
 
