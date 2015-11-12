@@ -33,7 +33,7 @@ angular.module('p2p.controllers',[])
         console.log('device ready');
         navigator.contactsPhoneNumbers.list(function(contacts){
             Contacts.save(contacts);
-            alert(JSON.stringify(contacts));
+            //alert(JSON.stringify(contacts));
         },function(error){
             alert('contact error:'+error);
         });
@@ -85,10 +85,15 @@ angular.module('p2p.controllers',[])
 })
 
 
-.controller('ResourcesCtrl',function($scope, Room, Account, $ionicModal, Class, $ionicSideMenuDelegate, $stateParams, Resource){
+.controller('ResourcesCtrl',function($scope, $ionicHistory, Room, Account, $ionicModal, Class, $ionicSideMenuDelegate, $stateParams, Resource){
     $scope.getRoomNameById = function(roomId){
         return Room.get(roomId).name;
     };
+
+    $scope.goBackHome = function(){
+        $ionicHistory.goBack(-1);
+    };
+
 
     $scope.toggleClasses = function(){
         $ionicSideMenuDelegate.toggleLeft();
@@ -133,34 +138,50 @@ angular.module('p2p.controllers',[])
     $scope.resource = Resource.get($stateParams.roomId, $stateParams.resourceId);
 })
 
-.controller('MineCtrl',function($scope, $stateParams, Account){
+.controller('MineCtrl',function($scope, $cordovaSms, $stateParams, Account){
+    $scope.account = {};
     $scope.cancelLogin = function(){
         Account.cancelLogin();
-    }
+    };
 
-    /*
-    console.log('mine ctrl loading');
+    $scope.sendVerify = function(phoneNum) {
+        $scope.account.verify = Math.round(Math.random()*100000);
+        $cordovaSms.send(phoneNum, $scope.account.verify);
+        console.log("verify:"+$scope.account.verify);
+    };
 
-    document.addEventListener('deviceready', onDeviceReady, false);
-    function onDeviceReady(){
-        var simInfo = window.plugins.sim.getSimInfo(function(){},function(){});
-        console.log(simInfo);
-    }
-    */
+    $scope.login = function(account, password) {
+        var a = Account.get(account);
+        if (a != false) {
+            if (Account.get(account).password == password) {
+                Account.cancelLogin();
+                return true;
+            }
+        } else {
+            console.log($scope.account.verify + '=='+$scope.account.verifyInput+','+$scope.account.account);
+            if ($scope.account.verify == $scope.account.verifyInput) {
+                Account.save(account, password, $scope.account.nickName, $scope.account.portrait);
+                Account.cancelLogin();
+            }
+        }
+    };
 })
 
 /*
 .controller('SessionsCtrl', function($scope, $stateParams){
 })
 */
-.controller('FriendsCtrl', function($scope, Contacts){
+.controller('FriendsCtrl', function($scope, Contacts, $ionicSideMenuDelegate){
     $scope.contacts = Contacts.get();
+    $scope.closeLeftMenu = function(){
+        $ionicSideMenuDelegate.toggleLeft();
+    };
 })
 
 .controller('SettingsCtrl', function($scope, $stateParams){
 })
 
-.controller('ChatCtrl', function($scope, Contacts, $cordovaSms, $stateParams, Session){
+.controller('ChatCtrl', function($scope, $ionicHistory, Contacts, $cordovaSms, $stateParams, Session){
     $scope.session = {};
 
     $scope.session.id = $stateParams.id;
@@ -174,5 +195,11 @@ angular.module('p2p.controllers',[])
         $cordovaSms.send(session.id, message).
             then(function(){},function(){});
     };
+
+    $scope.goBack = function(){
+        $ionicHistory.goBack(-2);
+    };
+
+    console.log('history:'+JSON.stringify($ionicHistory.viewHistory()));
 })
 

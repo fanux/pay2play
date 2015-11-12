@@ -30,15 +30,10 @@ angular.module('p2p', ['ionic', 'p2p.controllers', 'p2p.services', 'ngCordova'])
             }
         }
     })
+
     .state('index',{
         //url:'/',
         views:{
-            /*
-            'panelView':{
-                templateUrl:'templates/rooms.html',
-                controller:'RoomsCtrl'
-            },
-            */
             'leftMenuView':{
                 templateUrl:'templates/chatTabs.html',
                 controller:'ClassCtrl'
@@ -100,6 +95,7 @@ angular.module('p2p', ['ionic', 'p2p.controllers', 'p2p.services', 'ngCordova'])
             }
         }
     })
+
 
     .state('resources',{
         url:'/room/:roomId/resources/:classId/',

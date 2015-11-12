@@ -1,10 +1,10 @@
-<ion-view hide-back-button="true">
+<ion-view hide-back-button="true" view-title="{{getRoomNameById(currentRoomId)}}">
     <ion-nav-title>
         <ion-header-bar class="bar-balanced">
         <button class="button button-icon" ng-click="toggleClasses()">
             <i class="icon ion-navicon"></i>
         </button>
-        <h1 class="title">{{getRoomNameById(currentRoomId)}}</h1>
+        <h1 class="title center">{{getRoomNameById(currentRoomId)}}</h1>
         <button class="button button-icon" ng-click="newResource(currentRoomId)">
             <i class="icon ion-android-upload"></i>
         </button>

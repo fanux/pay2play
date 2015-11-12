@@ -3,6 +3,9 @@ angular.module('p2p.services', [])
 .factory('Account', function($ionicModal){
     var modal;
 
+    var account = {};
+    var loginFlag = 0;
+
     $ionicModal.fromTemplateUrl('login.html',{
         animation:'slide-in-up'
     }).then(function(m){
@@ -14,7 +17,31 @@ angular.module('p2p.services', [])
             modal.hide();
         },
         login:function(){
-            modal.show();
+            if (loginFlag == 0) {
+                modal.show();
+            }
+        },
+        get:function(acc) {
+            if (account.hasOwnProperty(acc)) {
+                console.log('get account:'+JSON.stringify(account[acc]));
+                return account[acc];
+            } else {
+                return false;
+            }
+        },
+        save:function(acc, pass, nick, por){
+            loginFlag = 1;
+            var a = {};
+            a.account = acc;
+            a.password = pass;
+            a.nickName = nick;
+            a.portrait = por;
+
+            account[acc] = a;
+
+            console.log('save account:'+JSON.stringify(a));
+
+            return a;
         }
     }
 })

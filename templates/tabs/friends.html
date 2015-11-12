@@ -15,7 +15,8 @@
 
 <ion-content>
     <ion-list>
-        <ion-item menu-close class="item item-avatar"  style="min-height:0px"
+        <ion-item  class="item item-avatar"  style="min-height:0px"
+        ng-click="closeLeftMenu()"
         ng-repeat="contact in contacts" href="#/chat/?type=contact-phoneNum&name={{contact.displayName}}&id={{contact.phoneNumbers[0].number}}">
             <img ng-src="img/tatanic.jpg" style="width:30px;height:30px"/>
             {{contact.displayName}}
