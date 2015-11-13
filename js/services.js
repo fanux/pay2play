@@ -3,7 +3,14 @@ angular.module('p2p.services', [])
 .factory('Account', function($ionicModal){
     var modal;
 
-    var account = {};
+    var account = {
+        '15805691422':{
+            'account' : 'acc',
+            'password' : 'pass',
+            'nickName' : 'nick',
+            'portrait' : 'por',
+        },
+    };
     var loginFlag = 0;
 
     $ionicModal.fromTemplateUrl('login.html',{

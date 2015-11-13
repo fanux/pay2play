@@ -32,16 +32,16 @@
             <i class="ion-chevron-left" style="font-size:20px;"></i> 返回
         </ion-nav-back-button>
     </ion-nav-bar>
-    <ion-nav-view name="panelView"></ion-nav-view> 
+    <ion-nav-view name="panelView"></ion-nav-view>
 </ion-side-menu-content>
 
 <ion-side-menu side="left">
-    <ion-nav-view name="leftMenuView"></ion-nav-view> 
+    <ion-nav-view name="leftMenuView"></ion-nav-view>
 </ion-side-menu>
 
 <ion-side-menu side="right">
   <p>right munuview</p>
-  <ion-nav-view name="rightMenuView"></ion-nav-view> 
+  <ion-nav-view name="rightMenuView"></ion-nav-view>
 </ion-side-menu>
 </ion-side-menus>
 
@@ -58,13 +58,13 @@
         <ion-content>
             <div class="list list-inset">
                 <div class="row">
-                    <div class="col col-67">
+                    <div class="col" ng-class="{true:'col-67'}[account.isNewUser == true]">
                     <label class="item item-input ">
                         <i class="icon ion-person placeholder-icon"></i>
-                        <input type="text" ng-model="account.account" placeholder="手机号"/>
+                        <input ng-blur="judgeAccountExist(account.account);" type="text" ng-model="account.account" placeholder="手机号"/>
                     </label>
                     </div>
-                    <div class="col col-33">
+                    <div class="col col-33" ng-if="account.isNewUser == true">
                     <button class="button button-full button-balanced" style="margin:0 " ng-click="sendVerify(account.account);">验证码</button>
                     </div>
                 </div>
@@ -78,7 +78,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row" ng-if="account.isNewUser == true">
                     <div class="col col-20">
                         <img src="img/xilige.jpg" style="width:80%;border-radius:50%;margin-left:10%;"/>
                     </div>
@@ -89,7 +89,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row" ng-if="account.isNewUser == true">
                     <div class="col">
                         <label class="item item-input">
                             <input ng-model="account.verifyInput" placeholder="验证码" type="text"/>

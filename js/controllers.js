@@ -139,7 +139,9 @@ angular.module('p2p.controllers',[])
 })
 
 .controller('MineCtrl',function($scope, $cordovaSms, $stateParams, Account){
-    $scope.account = {};
+    $scope.account = {
+        'isNewUser':false,
+    };
     $scope.cancelLogin = function(){
         Account.cancelLogin();
     };
@@ -163,6 +165,20 @@ angular.module('p2p.controllers',[])
                 Account.save(account, password, $scope.account.nickName, $scope.account.portrait);
                 Account.cancelLogin();
             }
+        }
+    };
+
+    //判断账户是否存在
+    $scope.judgeAccountExist = function(account) {
+        var a = Account.get(account);
+        if (a == false) {
+            console.log('new user, show regist view:' + account);
+            $scope.account.isNewUser = true;
+            return false;
+        } else {
+            console.log('old user,show user login view:' + account);
+            $scope.account.isNewUser = false;
+            return true;
         }
     };
 })
