@@ -148,7 +148,7 @@ angular.module('p2p.controllers',[])
 
     $scope.sendVerify = function(phoneNum) {
         $scope.account.verify = Math.round(Math.random()*100000);
-        $cordovaSms.send(phoneNum, $scope.account.verify);
+        //$cordovaSms.send(phoneNum, $scope.account.verify);
         console.log("verify:"+$scope.account.verify);
     };
 
@@ -219,3 +219,15 @@ angular.module('p2p.controllers',[])
     console.log('history:'+JSON.stringify($ionicHistory.viewHistory()));
 })
 
+.controller('MMX_ChatCtrl', function($scope){
+    //房间列表
+    $scope.roomIds = [];
+    //房间信息map
+    $scope.roomsDict = {};
+    //用户信息map
+    $scope.usersDict = {};
+    //当前房间
+    $scope.currentRoom = null;
+    //当前用户
+    $scope.currentUser = null;
+})

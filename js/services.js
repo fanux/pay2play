@@ -1,10 +1,13 @@
+var USER_URL = 'http://121.199.9.187:8080/user/';
 angular.module('p2p.services', [])
 
-.factory('Account', function($ionicModal){
+
+.factory('Account', function($ionicModal, $http){
     var modal;
 
     var account = {
         '15805691422':{
+            'id':1,
             'account' : 'acc',
             'password' : 'pass',
             'nickName' : 'nick',
@@ -37,18 +40,33 @@ angular.module('p2p.services', [])
             }
         },
         save:function(acc, pass, nick, por){
-            loginFlag = 1;
-            var a = {};
-            a.account = acc;
-            a.password = pass;
-            a.nickName = nick;
-            a.portrait = por;
+            var data = {
+                'account':acc,
+                'passwd':pass,
+                'nickName':nick,
+                'portrait':por,
+            };
 
-            account[acc] = a;
+            var url = USER_URL;
 
-            console.log('save account:'+JSON.stringify(a));
+            $http.post(USER_URL, JSON.stringify(data)).success(function(data){
+                if (data.userId) {
+                    loginFlag = 1;
+                    var a = {};
+                    a.id = data.userId;
+                    a.account = acc;
+                    a.password = pass;
+                    a.nickName = nick;
+                    a.portrait = por;
 
-            return a;
+                    account[acc] = a;
+
+                    console.log('save account:'+JSON.stringify(a));
+                    return a;
+                } else {
+                    console.log('regist failed');
+                }
+            });
         }
     }
 })
