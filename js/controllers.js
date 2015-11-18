@@ -219,13 +219,52 @@ angular.module('p2p.controllers',[])
     console.log('history:'+JSON.stringify($ionicHistory.viewHistory()));
 })
 
-.controller('MMX_ChatCtrl', function($scope){
-    //房间列表
-    $scope.roomIds = [];
+.controller('MMX_ChatCtrl', function($scope, $q, RoomInfo){
     //房间信息map
-    $scope.roomsDict = {};
+    $scope.roomsDict = {
+        //房间列表
+        roomIds:[],
+        //返回一个Room对象
+        //调用方式:
+        // var promise = $scope.roomsDict.get(gname);
+        // promise.then(function(data){
+        //     成功回调
+        // }, function(data){
+        //     失败回调
+        // });
+        get:function(gname) {
+                var deferred = $q.defer();//有可能需要向后台异步请求
+                if (this.hasOwnProperty(gname)) {
+                    //缓存已存在房间信息
+                    deferred.resolve(this[gname]);
+                } else {
+                    //创建新房间,获取房间信息，放入缓存
+                    var room = new Room(gname);
+                    var promise = RoomInfo.get(gname);
+
+                    promise.then(function(data){
+                        //房间列表中添加新房间
+                        if (this.roomIds.indexOf(gname) == -1) {
+                            this.roomIds.push(gname);
+                        }
+
+                        //TODO 获取房间信息,获取人员，人数，创建者信息
+
+                        this[gname] = room;
+                        deferred.resolve(room);
+                    }, function(data){
+                        deferred.reject(data);
+                    });
+                }
+                return deferred.promise; //返回承诺
+            },
+    };
     //用户信息map
-    $scope.usersDict = {};
+    $scope.usersDict = {
+        //返回一个User对象
+        get:function(userId) {
+            },
+    };
     //当前房间
     $scope.currentRoom = null;
     //当前用户

@@ -1,4 +1,4 @@
-var USER_URL = 'http://121.199.9.187:8080/user/';
+var USER_URL = 'http://121.199.9.187:3000/user/';
 angular.module('p2p.services', [])
 
 
@@ -291,5 +291,22 @@ angular.module('p2p.services', [])
 
             return sessionId;
         }
+    }
+})
+
+.factory('RoomInfo', function($q, $http){
+    return {
+        get:function(gname){
+                var deferred = $q.defer();
+                $http({method:'GET', url:'/chat/room/'+gname+'/info'})
+                .success(function(data, status, headers, config){
+                    deferred.resolve(data);
+                })
+                .error(function(data, status, headers, config){
+                    deferred.reject(data);
+                });
+
+                return deferred.promise;
+            }
     }
 })

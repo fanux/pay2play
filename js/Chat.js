@@ -2,10 +2,11 @@
 function MyWebSocket(url){
     //建立连接接口
     this.websocket = null;
+    var _this = this;
     this.init = function(){
-        this.websocket = new WebSocket(url);
+        _this.websocket = new WebSocket(url);
         console.log('new websocket url:'+url);
-        return this.websocket;
+        return _this.websocket;
     };
 
     //发送消息接口
@@ -16,6 +17,8 @@ function MyWebSocket(url){
 }
 
 //用户信息类
+//API: /user/(userId)/info?myId=123
+//userId也有可能是商家，也需要取到对应字段的信息
 function User(userId) {
     this.userId = userId;   //必须
     this.userName = '';     //如没有显示默认值(喵喵号)
@@ -33,11 +36,25 @@ function User(userId) {
 }
 
 //消息对象工厂
-function Fac_Message(message, ctx) {
-    var messageObj = JSON.parse(message);
-
+//有两种用法1：接收一条消息时type == null，用户解析消息。  
+//function onMessage(msg){
+//  processer = Fac_Message(msg, ctx, null);
+//  processer.process();
+//}
+//2：type == (消息类型) 用于获取一个可以发送消息的对象,调用send方法构造和发送消息，message可以为空
+//  sender = Fac_Message(null, ctx, 'CHAT_M');
+//  sender.send('gname', 'message');
+function Fac_Message(message, ctx, type) {
     var processer = null;
-    switch(messageObj.c) {
+
+    processer.ctx = ctx;
+    if (type == null) {
+        var messageObj = JSON.parse(message);
+        type = messageObj.c;
+        processer.messageObj = messageObj;
+    }
+
+    switch(type) {
         case 'CHAT_M': 
             processer = new CHAT_M_message(message);
             processer.messageType = 'CHAT_M';
@@ -86,8 +103,6 @@ function Fac_Message(message, ctx) {
         default:
             console.log('unknown command:'+message);
     }
-    processer.messageObj = messageObj;
-    processer.ctx = ctx;
 
     return processer;
 }
@@ -95,6 +110,7 @@ function Fac_Message(message, ctx) {
 //处理器上下文类。处理器处理消息时需要的参数，如$scope,以及其它对象,包含controller注入的所有服务
 function Ctx() {
     this.scope = null;
+    this.ws = null;     //websocket 对象
 }
 
 //消息类
@@ -113,19 +129,42 @@ function Message(message) {
 //接收到消息的处理，和发送消息的接口
 function CHAT_M_message(message) {
     Message.call(this, message);
+    var _this = this;
+
+    var gname = _this.messageObj.gname;
 
     //接收到消息的处理
     this.process = function() {
         console.log('CHAT_M process');
     };
 
-    //发送消息
-    this.send = function(gname, message) {}
+    //发送消息 message:消息体,user:发送方,mtype:消息类型content-type
+    this.send = function(gname, message, user, mtype) {
+        var messageBody = {
+            'user':user,
+            'time':0,
+            'mtype':mtype,
+            'm':message
+        };
+
+        var sendMessage = {
+            'c':'CHAT_M',
+            'gname':gname,
+            'body':messageBody
+        };
+
+        if(_this.ctx.ws) {
+            _this.ctx.ws.send(sendMessage);
+        } else {
+            console.log('send message ERROR, websocket is null');
+        }
+    };
 }
 
 //聊天记录处理器,获取到聊天记录的处理，以及获取聊天记录的接口
 function GET_RECORD_message(message) {
     Message.call(this, message);
+    var _this = this;
 
     //获取到聊天记录的处理
     this.process = function() {
@@ -133,7 +172,17 @@ function GET_RECORD_message(message) {
     };
 
     //获取聊天记录接口,房间id，需要获取的数量，结果直接填充上下文中的对象
-    this.send = function(gname, num){};
+    //从哪开始获取多少条记录
+    this.send = function(gname, num, startTime){
+        var message = {
+            'c':'GET_RECORD',
+            'gname':gname,
+            'stime':startTime,
+            'limit':num
+        };
+
+        _this.ctx.ws.send(message);
+    };
 }
 
 //组用户信息
@@ -142,10 +191,18 @@ function GROUP_USERS_message(message) {
 
     this.process = function() {
         console.log('GROUP_USERS_message process');
+        //TODO 获取组信息
     };
 
     //发送获取组用户信息请求，结果直接填充上下文中的对象
-    this.send = function(gname) {};
+    this.send = function(userId) {
+        var message = {
+            'c':'USER_GROUPS',
+            'user':userId
+        };
+
+        _this.ctx.ws.send(message);
+    };
 }
 
 //进组或者聊天室
@@ -242,17 +299,19 @@ function TUNNEL_message(message) {
 
 //gname is roomId
 //房间信息类
-function Room(gname) {
+function Room(gname, img, name, type) {
+    var _this = this;
+
     //房间内人员信息
     this.userIds = []; //房间内人员id列表
     this.userNum = 0;  //房间人数
     this.ownerId = 0;   //创建者id
 
     //房间基本信息
-    this.roomImgUrl = ''; //房间头像url
-    this.roomName = '';     //房间名称
+    this.roomImgUrl = img; //房间头像url
+    this.roomName = name;     //房间名称
     this.roomGname = gname; //房间id，唯一标识
-    this.roomType = '';     //房间类型
+    this.roomType = type;     //房间类型
 
     //房间内消息信息
     this.messages = [];
@@ -263,5 +322,31 @@ function Room(gname) {
      * 游标左边是已读消息，游标右边是未读消息
      * */
     this.messageReadCur = 0; //已读消息游标。
-    //this.newMessageNum = 0;
+
+    //设置room成员信息
+    this.setRoomMembersInfo = function(userIds, userNum, ownerId){
+        _this.userIds = userIds;
+        _this.userNum = userNum;
+        _this.ownerId = ownerId;
+    };
+
+    //添加消息
+    this.addMessage = function(message) {
+        _this.messages.push(message);
+    };
+
+    //添加多条消息
+    this.addMessages = function(messages) {
+        _this.messages = _this.messages.concat(messages);
+    };
+
+    //阅读新消息,会把游标移到尾部
+    this.readNewMessage = function(){
+        _this.messageReadCur = _this.messages.length;
+    }
+
+    //获取未读消息数量
+    this.getNewMessageNum = function(){
+        return _this.messages.length - _this.messageReadCur;
+    }
 }
