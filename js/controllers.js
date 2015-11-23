@@ -247,9 +247,6 @@ angular.module('p2p.controllers',[])
                         if (this.roomIds.indexOf(gname) == -1) {
                             this.roomIds.push(gname);
                         }
-
-                        //TODO 获取房间信息,获取人员，人数，创建者信息
-
                         this[gname] = room;
                         deferred.resolve(room);
                     }, function(data){
@@ -269,4 +266,17 @@ angular.module('p2p.controllers',[])
     $scope.currentRoom = null;
     //当前用户
     $scope.currentUser = null;
+
+
+    //websocket 处理
+    var WS_IP_PORT = '';
+    var passwd = '';
+    var wsUrl = 'ws://' + WS_IP_PORT + 'chat?u=' + $scope.currentUser + '&p=' + passwd;
+    //登出标志位，登出时websocket链接不可以重连
+    $scope.logoutFlag = 0;
+
+    //不包含ws链接的上下文
+    var ctx = new Ctx($scope);
+    var ws = new MyWebSocket(wsUrl, ctx);
+    ws.init();
 })

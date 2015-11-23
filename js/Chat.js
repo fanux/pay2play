@@ -1,18 +1,54 @@
 //websocket类
-function MyWebSocket(url){
+function MyWebSocket(url, ctx){
     //建立连接接口
     this.websocket = null;
+    this.ctx = ctx;
+    this.url = url;
+
     var _this = this;
+
     this.init = function(){
         _this.websocket = new WebSocket(url);
         console.log('new websocket url:'+url);
+
+        //初始化上下文中的链接
+        _this.ctx.ws = _this;
+
+        _this.websocket.onclose = function(evt) {_this.onClose(evt);}
+        _this.websocket.onopen = function(evt) {_this.onOpen(evt);}
+        _this.websocket.onmessage = function(evt) {_this.onMessage(evt);}
+        _this.websocket.onerror = function(evt) {_this.onError(evt);}
+
         return _this.websocket;
+    };
+
+    this.onOpen = function(evt){
+        //获取用户组信息
+        var msg = Fac_Message(null, _this.ctx, 'USER_GROUPS');
+        msg.send(ctx.scope.currentUser);
+    };
+
+    this.onMessage = function(evt){
+        //返回一个消息处理器对象
+        var msg = Fac_Message(evt.data, _this.ctx, null);
+        msg.process();
+    };
+
+    this.onClose = function(evt){
+        if (!_this.ctx.scope.logoutFlag) {
+            setTimeout(_this.init, 30000);
+        } else {
+            _this.ctx.scope.logoutFlag = 0;
+        }
+    };
+    this.onError = function(evt){
+        console.log('websocket error:' + evt);
     };
 
     //发送消息接口
     this.send = function(data){
         console.log('send message:'+JOSN.stringify(data));
-        this.websocket.send(JSON.stringify(data));
+        _this.websocket.send(JSON.stringify(data));
     };
 }
 
@@ -108,7 +144,7 @@ function Fac_Message(message, ctx, type) {
 }
 
 //处理器上下文类。处理器处理消息时需要的参数，如$scope,以及其它对象,包含controller注入的所有服务
-function Ctx() {
+function Ctx(scope) {
     this.scope = null;
     this.ws = null;     //websocket 对象
 }
@@ -135,6 +171,19 @@ function CHAT_M_message(message) {
 
     //接收到消息的处理
     this.process = function() {
+        var gname = _this.messageObj.gname;
+        var promise = _this.ctx.scope.roomsDict.get(gname);
+        promise.then(function(room){
+            //TODO可能还需要一个附加条件判断当前room是否打开了
+            if (gname == _this.ctx.scope.currentRoom) {
+                room.readNewMessage();
+            } 
+            //以前是只将消息的body放到room里，考虑将来其他的消息可能也会放到里面，room当作容器
+            //包含命令码等其他信息
+            room.addMessage(_this.messageObj);
+        },function(){
+            console.log('get room in rooms dict failed');
+        });
         console.log('CHAT_M process');
     };
 
@@ -168,6 +217,12 @@ function GET_RECORD_message(message) {
 
     //获取到聊天记录的处理
     this.process = function() {
+        var gname = _this.messageObj.gname;
+        var promise = _this.ctx.scope.roomsDict.get(gname);
+        promise.then(function(room){
+            room.addMessagesHead(_this.messageObj.ms);
+        }, function(){
+        });
         console.log('GET_RECORD_message process');
     };
 
@@ -190,15 +245,20 @@ function GROUP_USERS_message(message) {
     Message.call(this, message);
 
     this.process = function() {
+        var gname = _this.messageObj.gname;
+        //调用get的时候room的基本信息就会被填充
+        var promise = _this.ctx.scope.roomsDict.get(gname);
+        promise.then(function(room){
+            room.setRoomUsers(_this.messageObj.users);
+        }, function(){});
         console.log('GROUP_USERS_message process');
-        //TODO 获取组信息
     };
 
     //发送获取组用户信息请求，结果直接填充上下文中的对象
-    this.send = function(userId) {
+    this.send = function(gname) {
         var message = {
-            'c':'USER_GROUPS',
-            'user':userId
+            'c':'GROUP_USERS',
+            'gname':gname
         };
 
         _this.ctx.ws.send(message);
@@ -211,11 +271,24 @@ function ENTR_GROUP_message(message) {
 
     //新人进组会收到此消息
     this.process = function() {
+        var gname = _this.messageObj.gname;
+        var promise = _this.ctx.scope.roomsDict.get(gname);
+        promise.then(function(room){
+            room.addUser(_this.messageObj.user);
+        }, function(){});
         console.log('ENTR_GROUP_message process');
     };
 
     //用户进入哪个房间时发送的消息。该消息会发送给组内其他成员
-    this.send = function(userId, gname) {};
+    this.send = function(userId, gname) {
+        var message = {
+            'c':'ENTR_GROUP',
+            'user':userId,
+            'gname':gname
+        }
+        
+        _this.ctx.ws.send(message);
+    };
 }
 
 //退出讨论组或者聊天室
@@ -223,11 +296,24 @@ function EXIT_G_message(message) {
     Message.call(this, message);
 
     this.process = function() {
+        var gname = _this.messageObj.gname;
+        var promise = _this.ctx.scope.roomsDict.get(gname);
+        promise.then(function(room){
+            room.removeUser(_this.messageObj.user);
+        }, function(){});
         console.log('EXIT_G_message process');
     };
 
     //用户退出组时发送此消息。哪个用户退出哪个组.该消息会发送给组内其他成员
-    this.send = function(userId, gname) {};
+    this.send = function(userId, gname) {
+        var message = {
+            'c':'EXIT_G',
+            'user':userId,
+            'gname':gname
+        }
+
+        _this.ctx.ws.send(message);
+    };
 }
 
 //被拉时接受到的邀请信息
@@ -304,7 +390,6 @@ function Room(gname, img, name, type) {
 
     //房间内人员信息
     this.userIds = []; //房间内人员id列表
-    this.userNum = 0;  //房间人数
     this.ownerId = 0;   //创建者id
 
     //房间基本信息
@@ -339,14 +424,31 @@ function Room(gname, img, name, type) {
     this.addMessages = function(messages) {
         _this.messages = _this.messages.concat(messages);
     };
+    //往首部添加多条消息
+    this.addMessagesHead = function(messages) {
+    };
 
     //阅读新消息,会把游标移到尾部
     this.readNewMessage = function(){
         _this.messageReadCur = _this.messages.length;
-    }
+    };
 
     //获取未读消息数量
     this.getNewMessageNum = function(){
         return _this.messages.length - _this.messageReadCur;
-    }
+    };
+
+    //初始化房间人员信息
+    this.setRoomUsers = function(users){
+        _this.userIds = users;
+        _this.ownerId = users[0];
+    };
+
+    //添加房间人员
+    this.addUser = function(user){
+        _this.userIds.push(user);
+    };
+    //删除某个人员
+    this.removeUser = function(user) {
+    };
 }
