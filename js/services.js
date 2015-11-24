@@ -298,7 +298,7 @@ angular.module('p2p.services', [])
     return {
         get:function(gname){
                 var deferred = $q.defer();
-                $http({method:'GET', url:'/chat/room/'+gname+'/info'})
+                $http({method:'GET', url:'http://chat.immbear.com/chat/room/'+gname+'/info'})
                 .success(function(data, status, headers, config){
                     deferred.resolve(data);
                 })

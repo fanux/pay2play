@@ -224,6 +224,10 @@ angular.module('p2p.controllers',[])
     $scope.roomsDict = {
         //房间列表
         roomIds:[],
+        addRoomId:function(roomId){
+            console.log('add roomIds:'+roomId+',roomIds:'+JSON.stringify(this.roomIds));
+            this.roomIds.push(roomId);
+        },
         //返回一个Room对象
         //调用方式:
         // var promise = $scope.roomsDict.get(gname);
@@ -241,13 +245,15 @@ angular.module('p2p.controllers',[])
                     //创建新房间,获取房间信息，放入缓存
                     var room = new Room(gname);
                     var promise = RoomInfo.get(gname);
+                    var _this = this;
 
                     promise.then(function(data){
                         //房间列表中添加新房间
-                        if (this.roomIds.indexOf(gname) == -1) {
-                            this.roomIds.push(gname);
+                        if (_this.roomIds.indexOf(gname) == -1) {
+                            _this.roomIds.push(gname);
                         }
-                        this[gname] = room;
+                        room.setRoomBaseInfo(data.gname, data.roomName, data.roomImg);
+                        _this[gname] = room;
                         deferred.resolve(room);
                     }, function(data){
                         deferred.reject(data);
@@ -265,13 +271,13 @@ angular.module('p2p.controllers',[])
     //当前房间
     $scope.currentRoom = null;
     //当前用户
-    $scope.currentUser = null;
+    $scope.currentUser = 10002;
 
 
     //websocket 处理
-    var WS_IP_PORT = '';
-    var passwd = '';
-    var wsUrl = 'ws://' + WS_IP_PORT + 'chat?u=' + $scope.currentUser + '&p=' + passwd;
+    var WS_IP_PORT = 'chat.immbear.com:8889';
+    var passwd = '96e79218965eb72c92a549dd5a330112';
+    var wsUrl = 'ws://' + WS_IP_PORT + '/chat/?u=' + $scope.currentUser + '&p=' + passwd;
     //登出标志位，登出时websocket链接不可以重连
     $scope.logoutFlag = 0;
 

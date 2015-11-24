@@ -8,8 +8,8 @@ function MyWebSocket(url, ctx){
     var _this = this;
 
     this.init = function(){
-        _this.websocket = new WebSocket(url);
         console.log('new websocket url:'+url);
+        _this.websocket = new WebSocket(url);
 
         //初始化上下文中的链接
         _this.ctx.ws = _this;
@@ -26,10 +26,12 @@ function MyWebSocket(url, ctx){
         //获取用户组信息
         var msg = Fac_Message(null, _this.ctx, 'USER_GROUPS');
         msg.send(ctx.scope.currentUser);
+        console.log('open websocket');
     };
 
     this.onMessage = function(evt){
         //返回一个消息处理器对象
+        console.log('receive message:'+evt.data);
         var msg = Fac_Message(evt.data, _this.ctx, null);
         msg.process();
     };
@@ -40,6 +42,7 @@ function MyWebSocket(url, ctx){
         } else {
             _this.ctx.scope.logoutFlag = 0;
         }
+        console.log('websocket close');
     };
     this.onError = function(evt){
         console.log('websocket error:' + evt);
@@ -47,13 +50,13 @@ function MyWebSocket(url, ctx){
 
     //发送消息接口
     this.send = function(data){
-        console.log('send message:'+JOSN.stringify(data));
+        console.log('send message:'+JSON.stringify(data));
         _this.websocket.send(JSON.stringify(data));
     };
 }
 
 //用户信息类
-//API: /user/(userId)/info?myId=123
+//API: /user/(myId)/info?uid=1&uid=2&uid=3
 //userId也有可能是商家，也需要取到对应字段的信息
 function User(userId) {
     this.userId = userId;   //必须
@@ -83,11 +86,10 @@ function User(userId) {
 function Fac_Message(message, ctx, type) {
     var processer = null;
 
-    processer.ctx = ctx;
+    var messageObj = null;
     if (type == null) {
-        var messageObj = JSON.parse(message);
+        messageObj = JSON.parse(message);
         type = messageObj.c;
-        processer.messageObj = messageObj;
     }
 
     switch(type) {
@@ -139,13 +141,16 @@ function Fac_Message(message, ctx, type) {
         default:
             console.log('unknown command:'+message);
     }
+    processer.ctx = ctx;
+
+    processer.messageObj = messageObj;
 
     return processer;
 }
 
 //处理器上下文类。处理器处理消息时需要的参数，如$scope,以及其它对象,包含controller注入的所有服务
 function Ctx(scope) {
-    this.scope = null;
+    this.scope = scope;
     this.ws = null;     //websocket 对象
 }
 
@@ -243,6 +248,7 @@ function GET_RECORD_message(message) {
 //组用户信息
 function GROUP_USERS_message(message) {
     Message.call(this, message);
+    var _this = this;
 
     this.process = function() {
         var gname = _this.messageObj.gname;
@@ -268,6 +274,7 @@ function GROUP_USERS_message(message) {
 //进组或者聊天室
 function ENTR_GROUP_message(message) {
     Message.call(this, message);
+    var _this = this;
 
     //新人进组会收到此消息
     this.process = function() {
@@ -340,13 +347,31 @@ function SHAKE_KEYS_message(message) {
 //用户组信息
 function USER_GROUPS_message(message) {
     Message.call(this, message);
-
+    var _this = this; 
     this.process = function() {
+        var groups = _this.messageObj.groups;
+        for (var i = 0; i < groups.length; i++) {
+            //获取room基本信息，可能在缓存中，也可能去平台上获取，怎么获取的此处不关心
+            var promise = _this.ctx.scope.roomsDict.get(groups[i]);
+            promise.then(function(room){
+                //添加room列表
+                _this.ctx.scope.roomsDict.addRoomId(room.roomGname);
+                //发送获取组用户信息请求
+                var groupUsersMsg = Fac_Message(null, _this.ctx, 'GROUP_USERS');
+                groupUsersMsg.send(room.roomGname);
+            }, function(){});
+        }
         console.log('USER_GROUPS_message process');
     };
 
     //获取用户组信息请求
-    this.send = function(userId){};
+    this.send = function(userId){
+        var msg = {
+            'c':'USER_GROUPS',
+            'user':userId
+        };
+        _this.ctx.ws.send(msg);
+    };
 }
 
 //添加好友信息
@@ -414,6 +439,24 @@ function Room(gname, img, name, type) {
         _this.userNum = userNum;
         _this.ownerId = ownerId;
     };
+
+    //设置room基本信息
+    this.setRoomBaseInfo = function(gname, name, img) {
+        var t = gname.slice(0, 4);
+        if (t == 'shop') {
+            _this.roomType = 'shop';
+        } else if(t == 'grou'){
+            _this.roomType = 'groups';
+        } else {
+            _this.roomType = 'e2e';
+        }
+
+        this.roomGname = gname;
+        this.roomName = name;
+        this.roomImgUrl = img;
+
+        console.log('set room base info:'+gname+','+name+','+img);
+    }
 
     //添加消息
     this.addMessage = function(message) {

@@ -136,7 +136,8 @@ angular.module('p2p', ['ionic', 'p2p.controllers', 'p2p.services', 'ngCordova'])
         views:{
             'panelView':{
                 templateUrl:'templates/chatWindow.html',
-                controller:'ChatCtrl'
+                //controller:'ChatCtrl'
+                controller:'MMX_ChatCtrl'
             }
         }
     })
