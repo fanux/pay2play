@@ -219,7 +219,7 @@ angular.module('p2p.controllers',[])
     console.log('history:'+JSON.stringify($ionicHistory.viewHistory()));
 })
 
-.controller('MMX_ChatCtrl', function($scope, $q, RoomInfo){
+.controller('MMX_ChatCtrl', function($scope, $q, RoomInfo, UsersInfo){
     //房间信息map
     $scope.roomsDict = {
         //房间列表
@@ -266,10 +266,36 @@ angular.module('p2p.controllers',[])
     $scope.usersDict = {
         //返回一个User对象
         get:function(userId) {
+                var deferred = $q.defer();
+                if (this.hasOwnProperty(userId)) {
+                    console.log('already has user info in cache');
+                    //缓存中已经存在用户信息
+                    deferred.resolve(this[userId]);
+                } else {
+                    console.log('get user info by http request');
+                    var user = new User(userId);
+                    var promise = UsersInfo.gets([userId], $scope.currentUser);
+                    promise.then(function(u){
+                        user.setUserInfo(u[0].userId, u[0].userName, u[0].userImgUrl, u[0].gender, u[0].mcode, u[0].phoneNo, u[0].cityId, u[0].cityName, u[0].userType, u[0].isMyFriend, u[0].remark);
+                        $scope.usersDict[u[0].userId] = user;
+                        deferred.resolve(user);
+                    },function(){});
+                }
+
+                return deferred.promise;
             },
+        gets:function(userIds) {
+                 var deferred = $q.defer();
+                 var promise = UsersInfo.gets(userIds, $scope.currentUser);
+                 promise.then(function(users){
+                     deferred.resolve(users);
+                 }, function(){});
+
+                 return deferred.promise;
+             }
     };
     //当前房间
-    $scope.currentRoom = null;
+    $scope.currentRoom = 'users_100021448589188';
     //当前用户
     $scope.currentUser = 10002;
 
@@ -285,4 +311,11 @@ angular.module('p2p.controllers',[])
     var ctx = new Ctx($scope);
     var ws = new MyWebSocket(wsUrl, ctx);
     ws.init();
+
+
+    //views触发的函数
+    $scope.send = function(message){
+        var msg = new Fac_Message(null, ctx, 'CHAT_M');
+        msg.send($scope.currentRoom, message, $scope.currentUser, 'text');
+    };
 })

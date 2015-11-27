@@ -310,3 +310,31 @@ angular.module('p2p.services', [])
             }
     }
 })
+
+.factory('UsersInfo', function($q, $http){
+    return {
+        gets:function(userIds, currnetUserId) {
+                var deferred = $q.defer();
+                var str = '';
+                for (var i = 0 ;i < userIds.length; i++) {
+                    str += '&uid=';
+                    str += userIds[i];
+                }
+                console.log('get users info url:'+'http://api.immbear.com/user/'+currnetUserId+'/info?'+str.slice(1));
+                $http({method:'GET', url:'http://api.immbear.com/user/'+currnetUserId+'/info?'+str.slice(1)})
+                .success(function(data, status, headers, config){
+                    console.log('get user info:'+JSON.stringify(data));
+                    if (data.issuccess == true) {
+                        deferred.resolve(data.users);
+                    } else {
+                        deferred.reject(data);
+                    }
+                })
+                .error(function(){
+                    deferred.reject(data);
+                });
+
+                return deferred.promise;
+            }
+    }
+})

@@ -1,4 +1,77 @@
 <ion-view hide-back-button="false">
+
+<style>
+.chat_float_left{
+    float:left
+}
+.chat_float_right{
+    float:right
+}
+.chat_float_right label{
+    float:right
+}
+.chat_float_right img{
+    float:right
+}
+.chat_float_left label{
+    float:left
+}
+.chat_float_left img {
+    float:left
+}
+.chat_float_right .chat_message_container_tip {
+    position:relative;
+    border-width:6px;
+    border-style:dashed dashed dashed solid ;
+    border-color:transparent transparent transparent #43bb6f;
+    float:right;
+    top:-15px;
+    right:40px;
+}
+.chat_float_left .chat_message_container_tip {
+    position:relative;
+    border-width:6px;
+    border-style:dashed solid dashed dashed;
+    border-color:transparent #ece transparent transparent;
+    left:40px;
+    top:-12px;
+    float:left;
+}
+.chat_message_container {
+    border-radius:4px;
+    position:relative;
+    word-break:break-all;
+    max-width:97%;
+    color:#fff;
+}
+.chat_float_left .chat_message_container {
+    background-color:#ece;
+    float:left;
+    top:-20px;
+    left:40px;
+    color:#666;
+}
+.chat_float_right .chat_message_container {
+    background-color:#43bb6f;
+    float:right;
+    top:-20px;
+    right:40px;
+}
+.chat_message_container p{
+    margin:5px;
+}
+.chat_time_tip {
+    margin-left:5px;
+    margin-right:5px;
+    font-size:10px;
+    color:grey;
+}
+.chat_head {
+    border-radius:50%;
+    width:40px;
+    height:40px;
+}
+</style>
     <ion-nav-bar class="bar-positive">
         <ion-nav-back-button class="button-clear" ng-click="goBack()">
             <i class="ion-chevron-left" style="font-size:20px;"></i> 
@@ -14,10 +87,28 @@
     </ion-nav-title>
 
     <ion-content>
+        <div class="list">
+            <div class="" ng-repeat="message in roomsDict[currentRoom].messages" >
+                <div class="row" ng-class="{true:'chat_float_left', false:'chat_float_right'}[message.body.user != currentUser]">
+                    <div class="col col-90  " ng-class="{true:'col-offset-10'}[message.body.user == currentUser]">
+                        <img src="{{usersDict[message.body.user].userImgUrl}}@40h_40w.jpg" 
+                        class="chat_head"/>
+                        <label class="chat_time_tip">{{usersDict[message.body.user].showName}} {{message.body.time * 1000 | date:'MM-dd HH:mm:ss'}}</label>
+                        <div style="clear:both"></div>
+
+                        <div class="chat_message_container_tip">
+                        </div>
+                        <div class="chat_message_container">
+                            <p>{{message.body.m}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </ion-content>
 
     <ion-footer-bar >
         <input type="text" ng-model="message" style="padding:5px;width:85%;border:1px solid #999;margin-right:1%"/>
-        <button class="button button-balanced" ng-click="send(session, message)" style="width:14%">发送</button>
+        <button class="button button-balanced" ng-click="send(message)" style="width:14%">发送</button>
     </ion-footer-bar >
 </ion-view>

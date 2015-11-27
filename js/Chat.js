@@ -72,6 +72,31 @@ function User(userId) {
     //好友信息
     this.isMyFriend = false;//是否是我的好友
     this.remark = '';       //备注姓名
+
+    //view上展现的名字，是好友显示备注，不是好友显示昵称
+    this.showName = '';
+
+    var _this = this;
+
+    this.setUserInfo = function(a,b,c,d,e,f,g,h,i,j,k){
+        _this.userId = a;
+        _this.userName = b;
+        _this.userImgUrl = c;
+        _this.gender = d;
+        _this.mcode = e;
+        _this.phoneNo = f;
+        _this.cityId = g;
+        _this.cityName = h;
+        _this.userType = i;
+        _this.isMyFriend = j;
+        _this.remark = k;
+
+        if (_this.isMyFriend == true && _this.remark != "") {
+            _this.showName = _this.remark;
+        } else {
+            _this.showName = _this.userName;
+        }
+    };
 }
 
 //消息对象工厂
@@ -172,7 +197,6 @@ function CHAT_M_message(message) {
     Message.call(this, message);
     var _this = this;
 
-    var gname = _this.messageObj.gname;
 
     //接收到消息的处理
     this.process = function() {
@@ -189,6 +213,11 @@ function CHAT_M_message(message) {
         },function(){
             console.log('get room in rooms dict failed');
         });
+
+        //获取发送者的用户信息,获取到缓存中即可
+        var pro = _this.ctx.scope.usersDict.get(_this.messageObj.body.user);
+        pro.then(function(user){},function(){});
+
         console.log('CHAT_M process');
     };
 
@@ -326,13 +355,23 @@ function EXIT_G_message(message) {
 //被拉时接受到的邀请信息
 function INVITE_message(message) {
     Message.call(this, message);
+    var _this = this;
 
     this.process = function() {
+        var promise = _this.ctx.scope.roomsDict.get(gname);
+        promise.then(function(room){
+            room.setRoomUsers(_this.messageObj.users);
+        }, function(){});
+
+        _this.ctx.ws.send({
+            'c':'ACCEPT',
+            'gname':_this.messageObj.gname
+        });
         console.log('INVITE_message process');
     };
 }
 
-//摇一摇信息
+//摇一摇信息 TODO
 function SHAKE_KEYS_message(message) {
     Message.call(this, message);
 
@@ -341,7 +380,7 @@ function SHAKE_KEYS_message(message) {
     };
 
     //通过http接口发送摇一摇请求 url:/chat/match
-    this.send = function(url, data){};
+    this.send = function(url, gender, cityId){};
 }
 
 //用户组信息
