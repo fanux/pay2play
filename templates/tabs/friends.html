@@ -11,6 +11,21 @@
     .item-avatar .item-content{
         min-height:56px;
     }
+    .chat_friends_index {
+        width:10%;
+        padding:3%;
+        background-color:#999;
+        z-index:3;
+        right:0px;
+        position:fixed;
+    }
+    .chat_friends_index p {
+        margin:0px;
+    }
+    .chat_friends {
+        position:absolute;
+        top:0px;
+    }
 </style>
 
 <ion-content>
@@ -21,6 +36,23 @@
             <img ng-src="img/tatanic.jpg" style="width:30px;height:30px"/>
             {{contact.displayName}}
         </ion-item>
+    </ion-list>
+
+    <div class="chat_friends_index">
+        <p ng-repeat="c in usersDict.friendsListOrder" ng-click="goto(c[0])">{{c[0]}}</p>
+    </div>
+    <ion-list class="chat_friends">
+        <ion-item class="item" 
+        ng-repeat="ch in usersDict.friendsListOrder"
+        ng-if="ch[1].length != 0" id="{{ch[0]}}">
+        {{ch[0]}}
+            <ion-item class="item item-avatar" 
+            ng-repeat="user in ch[1]">
+                <img src="{{usersDict[user.id].userImgUrl}}@40h_40w.png" />
+                {{usersDict[user.id].showName}}
+            </ion-item>
+        </ion-item>
+        
     </ion-list>
 
 </ion-content>

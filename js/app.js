@@ -36,7 +36,7 @@ angular.module('p2p', ['ionic', 'p2p.controllers', 'p2p.services', 'ngCordova'])
         views:{
             'leftMenuView':{
                 templateUrl:'templates/chatTabs.html',
-                controller:'ClassCtrl'
+                controller:'MMX_ChatCtrl'
             }
         }
     })
@@ -67,7 +67,7 @@ angular.module('p2p', ['ionic', 'p2p.controllers', 'p2p.services', 'ngCordova'])
         views:{
             'leftTabViews':{
                 templateUrl:'templates/tabs/sessions.html',
-                controller:'ChatCtrl'
+                controller:'SessionsCtrl'
             }
         }
     })

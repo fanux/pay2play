@@ -6,3 +6,14 @@
     会话
 </h1>
 </ion-header-bar>
+
+<ion-content>
+    <ion-list>
+        <ion-item  class="item item-avatar"  
+        ng-repeat="room in roomsDict.roomIds"> 
+        <img ng-src="{{roomsDict[room].roomImgUrl}}"/>
+        <p>{{roomsDict[room].roomName}}</p>
+        <p>{{roomsDict[room].messages[0]}}</p>
+        </ion-item>
+    </ion-list>
+</ion-content>

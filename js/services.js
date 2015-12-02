@@ -301,6 +301,7 @@ angular.module('p2p.services', [])
                 $http({method:'GET', url:'http://chat.immbear.com/chat/room/'+gname+'/info'})
                 .success(function(data, status, headers, config){
                     deferred.resolve(data);
+                    console.log('got room info:'+JSON.stringify(data));
                 })
                 .error(function(data, status, headers, config){
                     deferred.reject(data);
@@ -336,5 +337,27 @@ angular.module('p2p.services', [])
 
                 return deferred.promise;
             }
+    }
+})
+
+.factory('ChatApi', function(){
+    //别的模块只需要导入这个服务，就可以通过聊天API接口操作聊天模块
+    //使用此服务API前聊天模块必须先加载
+    var ws = null;
+    var scope = null;
+    var ctx = null;
+
+    return {
+        save:function(s, w, c){
+                 ws = w;
+                 scope = s;
+                 ctx = c;
+                 console.log('chat loaded, chat api init ok');
+             },
+        //发送消息，指定消息类型和消息体,发送到当前房间
+        sendMessage:function(message, type){
+                        var msg = new Fac_Message(null, ctx, 'CHAT_M');
+                        msg.send(scope.currentRoom, message, scope.currentUser, type);
+                    },
     }
 })

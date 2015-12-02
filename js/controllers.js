@@ -219,14 +219,29 @@ angular.module('p2p.controllers',[])
     console.log('history:'+JSON.stringify($ionicHistory.viewHistory()));
 })
 
-.controller('MMX_ChatCtrl', function($scope, $q, RoomInfo, UsersInfo){
+.controller('MMX_ChatCtrl', function($scope, $http, $q, $anchorScroll, $location, RoomInfo, UsersInfo, ChatApi){
+    var API_URL = 'http://api.immbear.com';
+
+    //锚点跳转
+    $scope.goto = function(id) {
+        $location.hash(id);
+        $anchorScroll();
+    };
+
     //房间信息map
     $scope.roomsDict = {
         //房间列表
         roomIds:[],
+        //roomIds里面移除gname
+        removeRoomFromList:function(gname){
+            return this.roomIds.splice(0, this.roomIds.indexOf(gname));
+        },
+
         addRoomId:function(roomId){
-            console.log('add roomIds:'+roomId+',roomIds:'+JSON.stringify(this.roomIds));
-            this.roomIds.push(roomId);
+            if (this.roomIds.indexOf(roomId) == -1) {
+                console.log('add roomIds:'+roomId+',roomIds:'+JSON.stringify(this.roomIds));
+                this.roomIds.push(roomId);
+            }
         },
         //返回一个Room对象
         //调用方式:
@@ -264,6 +279,58 @@ angular.module('p2p.controllers',[])
     };
     //用户信息map
     $scope.usersDict = {
+        //好友列表
+        friendsListOrder : [['A',[]],['B',[]],['C',[]],['D',[]],['E',[]],['F',[]],['G',[]],['H',[]],['I',[]],['J',[]],['K',[]],['L',[]],['M',[]],['N',[]],['O',[]],['P',[]],['Q',[]],['R',[]],['S',[]],['T',[]],['U',[]],['V',[]],['W',[]],['X',[]],['Y',[]], ['Z',[]],],
+        //存储无顺序的userid
+        friendsList:[],
+
+        //ch:好友名称首字母,添加好友信息，id放入friendsList,信息放入userDict
+        friendsListPush : function(ch, userId) {
+            var flag = 0; //标志friendsList中有没有其首字母
+
+            for (var i = 0; i < this.friendsListOrder.length; i++) {
+                if (ch == this.friendsListOrder[i][0]) {
+                    if (this.friendsList.indexOf(userId) == -1) {
+                        this.friendsListOrder[i][1].push({'id':userId, 'flag':false});
+                        this.friendsList.push(userId);
+                    }
+                    flag = 1;
+                    break;
+                }
+            }
+            //列表中不存在ch首字母
+            if (flag = 0) {
+                this.friendsListOrder.push([ch, [{'id':userId, 'flag':false}]]);
+            }
+
+        },
+
+        getUserFriends : function(userId) {
+                             var url = API_URL + '/userweb/' + $scope.currentUser + '/friends';
+                             $http.get(url).success(function(data, status, headers, config){
+                                 console.log('get user friends:'+JSON.stringify(data));
+
+                                 for (var fs in data.friends) {
+                                     for (var u = 0; u < data.friends[fs].length; u++) {
+                                         var userId = data.friends[fs][u].friend_id;
+
+                                         if ($scope.usersDict.hasOwnProperty(userId)) {
+                                             var userInfo = $scope.usersDict[userId];
+                                         } else {
+                                             var userInfo = new User(userId);
+                                         }
+
+                                         userInfo.setUserInfo(userId, data.friends[fs][u].name, data.friends[fs][u].portrait_url, data.friends[fs][u].gender, data.friends[fs][u].mcode, data.friends[fs][u].phone_no, data.friends[fs][u].city_id, data.friends[fs][u].city_name, 2, true, data.friends[fs][u].friend_name);
+
+                                         $scope.usersDict[userId] = userInfo;
+
+                                         $scope.usersDict.friendsListPush(fs, userId);
+                                     }
+                                 }
+                                 console.log('friendList:'+JSON.stringify($scope.usersDict.friendsListOrder));
+                             });
+                         },
+
         //返回一个User对象
         get:function(userId) {
                 var deferred = $q.defer();
@@ -312,10 +379,14 @@ angular.module('p2p.controllers',[])
     var ws = new MyWebSocket(wsUrl, ctx);
     ws.init();
 
+    ChatApi.save($scope, ws, ctx);
 
+    
     //views触发的函数
     $scope.send = function(message){
         var msg = new Fac_Message(null, ctx, 'CHAT_M');
         msg.send($scope.currentRoom, message, $scope.currentUser, 'text');
     };
 })
+
+.controller('SessionsCtrl', function($scope){})

@@ -222,6 +222,7 @@ function CHAT_M_message(message) {
     };
 
     //发送消息 message:消息体,user:发送方,mtype:消息类型content-type
+    //message 可以是一个对象
     this.send = function(gname, message, user, mtype) {
         var messageBody = {
             'user':user,
@@ -330,12 +331,17 @@ function ENTR_GROUP_message(message) {
 //退出讨论组或者聊天室
 function EXIT_G_message(message) {
     Message.call(this, message);
+    var _this = this;
 
     this.process = function() {
         var gname = _this.messageObj.gname;
         var promise = _this.ctx.scope.roomsDict.get(gname);
         promise.then(function(room){
             room.removeUser(_this.messageObj.user);
+            //如果是自己退出组，删除房间列表对应项
+            if (_this.messageObj.user == _this.scope.currentUser) {
+                _this.scope.roomsDict.removeRoomFromList(_this.messageObj.gname);
+            }
         }, function(){});
         console.log('EXIT_G_message process');
     };
@@ -358,7 +364,7 @@ function INVITE_message(message) {
     var _this = this;
 
     this.process = function() {
-        var promise = _this.ctx.scope.roomsDict.get(gname);
+        var promise = _this.ctx.scope.roomsDict.get(_this.messageObj.gname);
         promise.then(function(room){
             room.setRoomUsers(_this.messageObj.users);
         }, function(){});
