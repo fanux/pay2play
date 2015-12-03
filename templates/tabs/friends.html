@@ -47,6 +47,7 @@
         ng-if="ch[1].length != 0" id="{{ch[0]}}">
         {{ch[0]}}
             <ion-item class="item item-avatar" 
+            ng-click="createSessionToFriend(user.id)"
             ng-repeat="user in ch[1]">
                 <img src="{{usersDict[user.id].userImgUrl}}@40h_40w.png" />
                 {{usersDict[user.id].showName}}

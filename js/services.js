@@ -340,12 +340,27 @@ angular.module('p2p.services', [])
     }
 })
 
-.factory('ChatApi', function(){
+.factory('ChatApi', function($ionicModal){
     //别的模块只需要导入这个服务，就可以通过聊天API接口操作聊天模块
     //使用此服务API前聊天模块必须先加载
     var ws = null;
     var scope = null;
     var ctx = null;
+    var modal = null;
+
+    function createE2eRoomName(u1, u2) {
+        if (u1 > u2) {
+            return 'e2e_'+ u1 + '_' + u2;
+        } else {
+            return 'e2e_'+ u2 + '_' + u1;
+        }
+    };
+
+    $ionicModal.fromTemplateUrl('/templates/chatWindow.html',{
+        animation:'slide-in-up'
+    }).then(function(m){
+        modal = m;
+    });
 
     return {
         save:function(s, w, c){
@@ -359,5 +374,30 @@ angular.module('p2p.services', [])
                         var msg = new Fac_Message(null, ctx, 'CHAT_M');
                         msg.send(scope.currentRoom, message, scope.currentUser, type);
                     },
+        //flag = 1弹出聊天窗口，否则隐藏
+        chatWindowPopup:function(flag) {
+                            if (flag == 1) {
+                                modal.show();
+                            } else {
+                                modal.hide();
+                            }
+                        },
+        //向userId好友发起会话
+        createSessionToUser:function(userId) {
+                                var gname = createE2eRoomName(userId, scope.currentUser);
+                                scope.currentRoom = gname;
+                                console.log('create new gname:' + scope.currentRoom);
+                                var promise = scope.roomsDict.get(gname);
+                                promise.then(function(room){
+                                    //弹出聊天窗口
+                                    scope.roomsDict.addRoomId(gname);
+                                    modal.show();
+                                }, function(){});
+                            },
+        //切换会话
+        exchangeRoom:function(room){
+                         scope.currentRoom = room;
+                         modal.show();
+                     },
     }
 })

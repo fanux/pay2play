@@ -219,13 +219,23 @@ angular.module('p2p.controllers',[])
     console.log('history:'+JSON.stringify($ionicHistory.viewHistory()));
 })
 
-.controller('MMX_ChatCtrl', function($scope, $http, $q, $anchorScroll, $location, RoomInfo, UsersInfo, ChatApi){
+.controller('MMX_ChatCtrl', function($scope, $http, $q, $ionicScrollDelegate, $anchorScroll, $location, RoomInfo, UsersInfo, ChatApi){
     var API_URL = 'http://api.immbear.com';
 
     //锚点跳转
     $scope.goto = function(id) {
         $location.hash(id);
         $anchorScroll();
+    };
+
+    //获取e2e类型的gname中的userid，返回聊天对方的id
+    function getUserIdInGname(gname) {
+        var list = gname.split('_');
+        if (list[1] == $scope.currentUser) {
+            return list[2];
+        } else {
+            return list[1];
+        }
     };
 
     //房间信息map
@@ -253,9 +263,20 @@ angular.module('p2p.controllers',[])
         // });
         get:function(gname) {
                 var deferred = $q.defer();//有可能需要向后台异步请求
+
                 if (this.hasOwnProperty(gname)) {
                     //缓存已存在房间信息
                     deferred.resolve(this[gname]);
+                } else if (gname.slice(0,3) == 'e2e') {
+                    var r = new Room(gname);
+                    var pro = $scope.usersDict.get(getUserIdInGname(gname));
+
+                    pro.then(function(user){
+                        r.setRoomBaseInfo(gname, user.showName, user.userImgUrl);
+                        $scope.roomsDict[gname] = r;
+                        $scope.roomsDict.addRoomId(gname);
+                        deferred.resolve(r);
+                    }, function(){});
                 } else {
                     //创建新房间,获取房间信息，放入缓存
                     var room = new Room(gname);
@@ -263,6 +284,9 @@ angular.module('p2p.controllers',[])
                     var _this = this;
 
                     promise.then(function(data){
+                        if ('eroor' in data) {
+                            return deferred.promise;
+                        }
                         //房间列表中添加新房间
                         if (_this.roomIds.indexOf(gname) == -1) {
                             _this.roomIds.push(gname);
@@ -376,16 +400,31 @@ angular.module('p2p.controllers',[])
 
     //不包含ws链接的上下文
     var ctx = new Ctx($scope);
+    ctx.scroll = $ionicScrollDelegate;
     var ws = new MyWebSocket(wsUrl, ctx);
     ws.init();
 
     ChatApi.save($scope, ws, ctx);
 
     
-    //views触发的函数
+    /*views触发的函数*/
+    //发送消息
     $scope.send = function(message){
         var msg = new Fac_Message(null, ctx, 'CHAT_M');
         msg.send($scope.currentRoom, message, $scope.currentUser, 'text');
+    };
+    //向好友创建会话
+    $scope.createSessionToFriend = function(userId) {
+        ChatApi.createSessionToUser(userId);
+    };
+    //关闭聊天窗口
+    $scope.cancelChat = function(){
+        ChatApi.chatWindowPopup(0);
+    }
+    $scope.exchangeRoom = function(room) {
+        ChatApi.exchangeRoom(room);
+        //$scope.currentRoom = room;
+        //ChatApi.chatWindowPopup(1);
     };
 })
 

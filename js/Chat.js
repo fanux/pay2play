@@ -163,12 +163,18 @@ function Fac_Message(message, ctx, type) {
             processer = new USER_GROUPS_message(message);
             processer.messageType = 'USER_GROUPS';
             break;
+        case 'CHANGE_DEVICE':
+            processer = new CHANGE_DEVICE_message(message);
+            processer.messageType = 'CHANGE_DEVICE';
+            break;
         default:
             console.log('unknown command:'+message);
     }
-    processer.ctx = ctx;
+    if (processer != null) {
+        processer.ctx = ctx;
 
-    processer.messageObj = messageObj;
+        processer.messageObj = messageObj;
+    }
 
     return processer;
 }
@@ -177,6 +183,7 @@ function Fac_Message(message, ctx, type) {
 function Ctx(scope) {
     this.scope = scope;
     this.ws = null;     //websocket 对象
+    this.scroll = null; //聊天窗口滚动条
 }
 
 //消息类
@@ -210,6 +217,8 @@ function CHAT_M_message(message) {
             //以前是只将消息的body放到room里，考虑将来其他的消息可能也会放到里面，room当作容器
             //包含命令码等其他信息
             room.addMessage(_this.messageObj);
+            //滚动条滚动到底部
+            _this.ctx.scroll.scrollBottom();
         },function(){
             console.log('get room in rooms dict failed');
         });
@@ -339,7 +348,7 @@ function EXIT_G_message(message) {
         promise.then(function(room){
             room.removeUser(_this.messageObj.user);
             //如果是自己退出组，删除房间列表对应项
-            if (_this.messageObj.user == _this.scope.currentUser) {
+            if (_this.messageObj.user == _this.ctx.scope.currentUser) {
                 _this.scope.roomsDict.removeRoomFromList(_this.messageObj.gname);
             }
         }, function(){});
@@ -374,6 +383,15 @@ function INVITE_message(message) {
             'gname':_this.messageObj.gname
         });
         console.log('INVITE_message process');
+    };
+}
+
+//换设备登陆处理
+function CHANGE_DEVICE_message(message) {
+    Message.call(this, message);
+
+    this.process = function() {
+        console.log('CHANGE_DEVICE_message process');
     };
 }
 
