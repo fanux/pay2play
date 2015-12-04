@@ -11,10 +11,11 @@
     <ion-list>
         <ion-item  class="item item-avatar"  
         ng-click="exchangeRoom(room)"
+        on-swipe-left="removeRoom(room)"
         ng-repeat="room in roomsDict.roomIds"> 
         <img ng-src="{{roomsDict[room].roomImgUrl}}"/>
         <p>{{roomsDict[room].roomName}}</p>
-        <p>{{roomsDict[room].messages[0].body.m}}</p>
+        <p>{{roomsDict[room].messages[roomsDict[room].messages.length - 1].body.m}}</p>
         </ion-item>
     </ion-list>
 </ion-content>

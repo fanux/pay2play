@@ -1,0 +1,33 @@
+<ion-view ng-controller="MMX_ChatCtrl" style="background-color:#ececec">
+
+    <ion-header-bar class="bar-dark">
+        <h1 class="title">
+                <i ng-click="closeAddFriend()" class="icon ion-left ion-chevron-left"></i>
+                加好友
+        </h1>
+    </ion-header-bar>
+
+    <ion-content>
+        <div class="row">
+            <div class="col col-80">
+            <input style="height:100%;width:100%;padding-left:5px;" class="chat_add_friend_input" type="text" ng-model="phoneOrmcode" placeholder="手机号/喵喵号">
+            </div>
+            <div class="col col-20">
+            <button class="button button-clear" style="color:#43bb6f;background-color:#fff;width:100%" ng-click="addFriend(phoneOrmcode)">确定</button>
+            </div>
+        </div>
+
+    <ion-list>
+        <ion-item  class="item item-avatar"  style="min-height:0px;margin:5px;"
+        ng-repeat="contact in contacts" >
+            <img ng-src="img/tatanic.jpg" style="width:30px;height:30px"/>
+            {{contact.displayName}} {{contact.phoneNumbers[0].number}}
+            <button class="button button-clear" 
+                style="height:60%;position:absolute;right:2%;top:0%;padding:5px;font-size:14px;color:#43bb6f;"
+                ng-click="addFriendByContact(contact.phoneNumbers[0].number)">添加</button>
+        </ion-item>
+    </ion-list>
+
+
+    </ion-content>
+</ion-view>

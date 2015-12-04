@@ -1,4 +1,5 @@
 var USER_URL = 'http://121.199.9.187:3000/user/';
+var API_URL = 'http://api.immbear.com';
 angular.module('p2p.services', [])
 
 
@@ -249,6 +250,23 @@ angular.module('p2p.services', [])
                 "type": "OTHER"
             }
         ]
+    },{
+        "id": "1",
+        "firstName": "方",
+        "lastName": "海涛",
+        "displayName": "方海涛",
+        "phoneNumbers": [
+            {
+                "number": "15805691422",
+                "normalizedNumber": "15805691422",
+                "type": "MOBILE"
+            }, 
+            {
+                "number": "(415) 555-3695",
+                "normalizedNumber": "(415) 555-3695",
+                "type": "OTHER"
+            }
+        ]
     }];
     return {
         save:function(phoneContacts){
@@ -340,13 +358,14 @@ angular.module('p2p.services', [])
     }
 })
 
-.factory('ChatApi', function($ionicModal){
+.factory('ChatApi', function($http, $ionicModal){
     //别的模块只需要导入这个服务，就可以通过聊天API接口操作聊天模块
     //使用此服务API前聊天模块必须先加载
     var ws = null;
     var scope = null;
     var ctx = null;
     var modal = null;
+    var friendModal = null;
 
     function createE2eRoomName(u1, u2) {
         if (u1 > u2) {
@@ -361,6 +380,12 @@ angular.module('p2p.services', [])
     }).then(function(m){
         modal = m;
     });
+    //好友列表
+    $ionicModal.fromTemplateUrl('/templates/addFriend.html',{
+        animation:'slide-in-up'
+    }).then(function(m){
+        friendModal = m;
+    });
 
     return {
         save:function(s, w, c){
@@ -374,6 +399,13 @@ angular.module('p2p.services', [])
                         var msg = new Fac_Message(null, ctx, 'CHAT_M');
                         msg.send(scope.currentRoom, message, scope.currentUser, type);
                     },
+        addFriendWindowPopup:function(flag) {
+                                 if (flag == 1) {
+                                     friendModal.show();
+                                 } else {
+                                     friendModal.hide();
+                                 }
+                             },
         //flag = 1弹出聊天窗口，否则隐藏
         chatWindowPopup:function(flag) {
                             if (flag == 1) {
@@ -399,5 +431,29 @@ angular.module('p2p.services', [])
                          scope.currentRoom = room;
                          modal.show();
                      },
+        addFriend:function(friend) {
+                      var data = {
+                          "mode":3,
+                          "phone":"",
+                          "mcode":"",
+                          "userID":0,
+                          "remark":""
+                      };
+                      var url = API_URL + '/user/friend/invite';
+                      if (friend[0] == 'm') {
+                          data.mode = 2;
+                          data.mcode = friend;
+                          console.log("add friend mode == mcode");
+                      } else if (friend.length < 11){
+                          data.mode = 3;
+                          data.userID = friend;
+                          console.log("add friend mode == userid");
+                      } else {
+                          data.mode = 1;
+                          data.phone = friend;
+                          console.log("add friend mode == phone");
+                      }
+                      $http.post(url, JSON.stringify(data));
+                  }
     }
 })

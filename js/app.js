@@ -18,7 +18,8 @@ angular.module('p2p', ['ionic', 'p2p.controllers', 'p2p.services', 'ngCordova'])
   });
 })
 
-.config(function($stateProvider, $urlRouterProvider){
+.config(function($stateProvider, $httpProvider, $urlRouterProvider){
+    $httpProvider.defaults.withCredentials=true;
     $stateProvider
 
     .state('mine',{

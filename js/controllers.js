@@ -219,8 +219,10 @@ angular.module('p2p.controllers',[])
     console.log('history:'+JSON.stringify($ionicHistory.viewHistory()));
 })
 
-.controller('MMX_ChatCtrl', function($scope, $http, $q, $ionicScrollDelegate, $anchorScroll, $location, RoomInfo, UsersInfo, ChatApi){
-    var API_URL = 'http://api.immbear.com';
+.controller('MMX_ChatCtrl', function($scope, $http, $q, $ionicScrollDelegate, $anchorScroll, 
+        Contacts, $location, RoomInfo, UsersInfo, ChatApi, $ionicModal, $cordovaSms){
+    /*测试使用，模拟登陆，合入框架后必须删除*/
+    $http.post(API_URL+'/user/login',JSON.stringify({"mode":2,"type":4,"phone":"15805691422","password":'96e79218965eb72c92a549dd5a330112',"dev":"121.199.9.187"}));
 
     //锚点跳转
     $scope.goto = function(id) {
@@ -244,7 +246,7 @@ angular.module('p2p.controllers',[])
         roomIds:[],
         //roomIds里面移除gname
         removeRoomFromList:function(gname){
-            return this.roomIds.splice(0, this.roomIds.indexOf(gname));
+            return this.roomIds.splice(this.roomIds.indexOf(gname),1);
         },
 
         addRoomId:function(roomId){
@@ -389,6 +391,8 @@ angular.module('p2p.controllers',[])
     $scope.currentRoom = 'users_100021448589188';
     //当前用户
     $scope.currentUser = 10002;
+    //通讯录
+    $scope.contacts = Contacts.get();
 
 
     //websocket 处理
@@ -425,6 +429,28 @@ angular.module('p2p.controllers',[])
         ChatApi.exchangeRoom(room);
         //$scope.currentRoom = room;
         //ChatApi.chatWindowPopup(1);
+    };
+    //移除会话
+    $scope.removeRoom = function(room) {
+        console.log('remove room from list');
+        $scope.roomsDict.removeRoomFromList(room);
+    }
+    //好友列表
+    $scope.openAddFriend = function(){
+        ChatApi.addFriendWindowPopup(1);
+    };
+    $scope.closeAddFriend = function(){
+        ChatApi.addFriendWindowPopup(0);
+    };
+    //添加好友请求
+    $scope.addFriend = function(friend) {
+        ChatApi.addFriend(friend);
+    };
+    //通过通讯录添加好友
+    $scope.addFriendByContact = function(friend) {
+        $scope.addFriend(friend);
+        //TODO 在手机上取消注释,发送短信给对方
+        //$cordovaSms.send(friend, '我在喵喵熊上加你好友了，去接收一下吧。http://www.immbear.com/#/user/'+friend+'/?invite='+$scope.currentUser).then(function(){},function(){});
     };
 })
 
